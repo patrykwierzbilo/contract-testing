@@ -1,0 +1,25 @@
+version: '2'
+services:
+  producer-server:
+    container_name: producer-server
+    build:
+      context: ../producer/
+      dockerfile: Dockerfile
+    image: producer:latest
+    ports:
+      - 8080:8080
+    networks:
+      - spring-cloud-network
+  consumer-server:
+    container_name: consumer-server
+    build:
+      context: ../consumer/
+      dockerfile: Dockerfile
+    image: consumer:latest
+    ports:
+      - 8081:8081
+    networks:
+      - spring-cloud-network
+networks:
+  spring-cloud-network:
+    driver: bridge
