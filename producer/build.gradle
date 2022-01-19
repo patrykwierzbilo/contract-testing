@@ -1,7 +1,25 @@
+import org.springframework.cloud.contract.verifier.config.TestFramework
+
+buildscript {
+	ext {
+		verifierVersion = '3.0.1'
+	}
+	repositories {
+		mavenCentral()
+		mavenLocal()
+	}
+	dependencies {
+		classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:${verifierVersion}"
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.6.2'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'maven-publish'
+	id "org.springframework.cloud.contract" version "3.1.0"
+	id 'groovy'
 }
 
 group = 'contract.testing'
@@ -15,15 +33,41 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-verifier', version: '3.1.0'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testImplementation group: 'io.rest-assured', name: 'spring-mock-mvc', version: '4.1.0'
+
 }
 
 test {
 	useJUnitPlatform()
 }
 
-
 jar {
 	enabled = false
+}
+
+contracts {
+	testFramework = TestFramework.JUNIT5
+	baseClassForTests = 'contract.testing.producer.MockMvcBase'
+}
+
+contractTest {
+	useJUnitPlatform()
+}
+
+ext {
+	contractsDir = file("mappings")
+	stubsOutputDirRoot = file("${project.buildDir}/production/${project.name}-stubs/")
+}
+
+publishing {
+	publications {
+		stubs(MavenPublication) {
+			artifactId "${project.name}---stubs"
+			artifact verifierStubsJar
+		}
+	}
 }
