@@ -6,20 +6,30 @@ services:
       context: ../producer/
       dockerfile: Dockerfile
     image: producer:latest
+    expose:
+      - 8080
     ports:
-      - 8080:8080
+      - "8080:8080"
     networks:
       - spring-cloud-network
+    environment:
+      server.port: 8080
+#      server.address: 127.0.0.1
   consumer-server:
     container_name: consumer-server
     build:
       context: ../consumer/
       dockerfile: Dockerfile
     image: consumer:latest
+    expose:
+      - 8081
     ports:
-      - 8081:8081
+      - "8081:8081"
     networks:
       - spring-cloud-network
+    environment:
+      server.port: 8081
+#      server.address: 127.0.0.1
 networks:
   spring-cloud-network:
     driver: bridge
