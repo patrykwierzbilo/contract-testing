@@ -11,26 +11,37 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+import java.time.Instant;
+
 @SpringBootTest
 public class ConsumerControllerTest {
 
     @RegisterExtension
     public StubRunnerExtension stubRunner = new StubRunnerExtension()
-            .downloadStub("contract.testing.producer---stubs", "producer---stubs", "0.0.1-SNAPSHOT", "stubs")
+            .downloadStub("contract.testing", "producer---stubs", "0.0.1-SNAPSHOT", "stubs")
             .withPort(8080)
             .stubsMode(StubRunnerProperties.StubsMode.LOCAL);
 
     @Test
-    public void get_person_from_service_contract() {
+    public void get_hash_for_string_contract() {
+        Instant start = Instant.now();
         // given:
         RestTemplate restTemplate = new RestTemplate();
-
+        //http://localhost:8081/string/compare/getHashOfMe/getHashOfMe
         // when:
-        ResponseEntity<String> result = restTemplate.getForEntity("http://localhost:8081/string/compare/string1/string1", String.class);
+        ResponseEntity<String> result = restTemplate.getForEntity("http://localhost:8080/string/hash/getHashOfMe", String.class);
+        restTemplate.getForEntity("http://localhost:8080/string/hash/getHashOfMe", String.class);
+        restTemplate.getForEntity("http://localhost:8080/string/hash/getHashOfMe", String.class);
+        restTemplate.getForEntity("http://localhost:8080/string/hash/getHashOfMe", String.class);
+        restTemplate.getForEntity("http://localhost:8080/string/hash/getHashOfMe", String.class);
 
         // then:
         BDDAssertions.then(result.getStatusCodeValue()).isEqualTo(200);
-        BDDAssertions.then(result.getBody()).isEqualTo("1l");
+        BDDAssertions.then(result.getBody()).isEqualTo("-2069022349");
+        Instant end = Instant.now();
+        Duration timeElapsed = Duration.between(start, end);
+        System.out.println("Cdc testing taken: "+ timeElapsed.toMillis() +" milliseconds");
 
     }
 }
